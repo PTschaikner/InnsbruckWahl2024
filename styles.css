@@ -1,0 +1,37 @@
+body {
+    font-family: 'Arial', sans-serif;
+    max-width: 900px;
+    margin: auto;
+    text-align: justify;
+}
+
+.small-text {
+    font-size: 0.8em;
+}
+
+
+#map {
+    height: 600px;
+}
+
+#tooltip {
+    width: 300px;
+    height: 200px;
+    position: absolute;
+    display: none;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid black;
+    padding: 5px;
+    pointer-events: none;
+    z-index: 1000;
+    border-radius: 10px;
+}
+
+#voteType {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.leaflet-overlay-pane svg path {
+    pointer-events: auto;
+}

@@ -1,54 +1,39 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <title>Innsbruck Boundaries Map</title>
+    <meta charset="UTF-8">
+    <title>Gemeinderats- und Bürgermeisterwahl der Landeshauptstadt Innsbruck 2024</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="styles.css">
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <style>
-        #map { height: 600px; }
-    </style>
 </head>
+
 <body>
-    <div id="map"></div>
-    <script>
-        var map = L.map('map').setView([47.2689, 11.3936], 13);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 18,
-            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
+    <body>
+        <h2 id="headline">Gemeinderats- und Bürgermeisterwahl der Landeshauptstadt Innsbruck 2024 </h2>
+        <p>Diese interaktive Karte zeigt die Wahlergebnisse der einzelnen Wahlsprengel der Innsbrucker Gemeinderats- und Bürgermeisterwahl vom 14. April 2024.</p>
+        <p> Durch Auswahl von 'Gemeinderatswahl' oder 'Bürgermeisterwahl' im Dropdown-Menü kann zwischen der Anzeige der Ergebnisse der entsprechenden Wahl gewechselt werden. Die Anzeigefarbe jedes Wahlsprengels spiegelt den jeweiligen Gewinner wider, während detaillierte Ergebnisse über Tooltips angezeigt werden, wenn über einen beliebigen Bereich der Karte gefahren wird.</p>    
+        <div id="map"></div>
+        <div id="tooltip"></div>
+        <select id="voteType" onchange="loadData()">
+            <option value="gemeinderat">Gemeinderatswahl</option>
+            <option value="burgermeister">Bürgermeisterwahl</option>
+        </select>
 
-        function getColor(winner) {
-            switch (winner) {
-                case 'Georg Willi - Die Innsbrucker Grünen - GRÜNE': return '#68b300'; // Example green color for this party
-                // Add more cases for each party with their respective colors
-                default: return '#68b300'; // Default gray color for any unmatched party
-            }
-        }
+        <script src="script.js"></script>
 
-        // Load CSV data with D3
-        d3.csv('data/ergebnis_partei.csv').then(function(data) {
-            var colorMap = {};
-            data.forEach(function(row) {
-                colorMap[row.Sprengel_Nr] = getColor(row.Gewinner);
-            });
+        <p class="small-text">
+            <strong>Visualisierung:</strong> <a href="https://twitter.com/P_Tschaikner" target="_blank"
+                rel="noopener noreferrer">@P_Tschaikner</a><br>
+            <strong>Datenquelle:</strong> <a
+                href="https://wahlen.tirol.gv.at/gemeinderats_und_buergermeisterwahl_der_landeshauptstadt_innsbruck_2024/gemeinden/innsbruck.html"
+                target="_blank" rel="noopener noreferrer">Land Tirol</a><br>
 
-            // Fetch the GeoJSON file and apply styles
-            fetch('data/wahlspr.json')
-                .then(function(response) { return response.json(); })
-                .then(function(geojsonData) {
-                    L.geoJSON(geojsonData, {
-                        style: function (feature) {
-                            var wsp = feature.properties.WSP;
-                            return { color: colorMap[wsp] || '#3388ff' }; // Use color from CSV or default blue
-                        }
-                    }).addTo(map);
-                })
-                .catch(function(error) {
-                    console.error('Error loading the GeoJSON data: ' + error);
-                });
-        });
-    </script>
-</body>
+            <strong>Lizenz:</strong> Creative Commons Attribution 4.0 International (CC BY 4.0).
+        </p>
+    </body>
+
 </html>
