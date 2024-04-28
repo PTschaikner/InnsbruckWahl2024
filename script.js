@@ -34,8 +34,8 @@ const partyColors = {
     "Elisabeth Mayr Maga": "#e42612",  // Same color as SPÖ
     "EINIG": "#561a4d",
     "Helmut Reichholf": "#561a4d",  // Same color as EINIG
-    "JA": "#ffffff",
-    "Johannes Anzengruber Ing": "#ffffff",  // Same color as JA
+    "JA": "#ffff87",
+    "Johannes Anzengruber": "#ffff87",  // Same color as JA
     "TUN": "#bffbd59",
     "Christian Franz Veber": "#bffbd59",  // Same color as TUN
     "DU-I": "#ffffff",
@@ -52,9 +52,11 @@ const tooltip = d3.select('#tooltip');
 function getMargins(voteType) {
     const margins = {
         'gemeinderat': { top: 20, right: 20, bottom: 50, left: 40 },
-        'burgermeister': { top: 20, right: 20, bottom: 120, left: 40 }  // Assume burgermeister needs more space
+        'burgermeister': { top: 20, right: 20, bottom: 120, left: 40 },
+        'burgermeister_stichwahl': { top: 25, right: 25, bottom: 95, left: 45 }  // Specific margins for the runoff election
     };
-    return margins[voteType] || margins['gemeinderat'];  // Default to 'gemeinderat' if type is not defined
+    // Return the specific margins for the given voteType, defaulting to 'gemeinderat' if not explicitly defined
+    return margins[voteType] || margins['gemeinderat'];
 }
 
 function showTooltip(event, d, results) {
@@ -127,14 +129,25 @@ function hideTooltip() {
 
 function loadData() {
     var selectedVote = document.getElementById("voteType").value;
-    var dataFile = selectedVote === "gemeinderat" ? 'data/ergebnis_partei.csv' : 'data/ergebnis_bgm.csv';
+    var dataFile = 'data/ergebnis_partei.csv'; // Default data file
+
+    // Determine which data file to load based on the dropdown selection
+    if (selectedVote === "gemeinderat") {
+        dataFile = 'data/ergebnis_partei.csv';
+    } else if (selectedVote === "burgermeister") {
+        dataFile = 'data/ergebnis_bgm.csv';
+    } else if (selectedVote === "burgermeister_stichwahl") {  // New condition for the new option
+        dataFile = 'data/ergebnis_bgm_stichwahl.csv';
+    }
 
     d3.csv(dataFile).then(results => {
         g.selectAll("*").remove(); // Clear the previous SVG elements
 
+        // Further implementation unchanged
         g.selectAll('path')
             .data(areas)
             .enter().append('path')
+            // Additional implementation to bind data to map
             .attr("fill", d => {
                 const result = results.find(r => r.Sprengel_Nr === d.properties.WSP);
                 return result ? colorScale(result.Gewinner) : '#ccc';
@@ -156,16 +169,6 @@ function loadData() {
                 d3.select(this).attr('opacity', 0.5);
                 hideTooltip();
             });
-
-        // Function to update the position of the paths based on map movements
-        function update() {
-            g.selectAll('path').attr('d', d3.geoPath().projection(d3.geoTransform({
-                point: function (x, y) {
-                    const point = map.latLngToLayerPoint(new L.LatLng(y, x));
-                    this.stream.point(point.x, point.y);
-                }
-            })));
-        }
 
         // Attach the update function to the map 'moveend' event
         map.on("moveend", update);
