@@ -169,14 +169,24 @@ function loadData() {
                 d3.select(this).attr('opacity', 0.5);
                 hideTooltip();
             });
-
-        // Attach the update function to the map 'moveend' event
-        map.on("moveend", update);
-
-        // Call update initially to ensure everything is positioned correctly
-        update();
     });
 }
+
+
+// Function to update the position of the paths based on map movements
+function update() {
+    g.selectAll('path').attr('d', d3.geoPath().projection(d3.geoTransform({
+        point: function (x, y) {
+            const point = map.latLngToLayerPoint(new L.LatLng(y, x));
+            this.stream.point(point.x, point.y);
+        }
+    })));
+}
+
+// Attach the update function to the map 'moveend' event
+map.on("moveend", update);
+// Call update initially to ensure everything is positioned correctly
+update();
 
 
 // Load areas once and use them in loadData
